@@ -46,5 +46,4 @@ for fname in run_names:
                 para = run_tuples[i][0]
                 score = run_tuples[i][1]
                 outrun.write(q+" Q0 "+para+" 0 "+str(score)+" COMBRUN\n")
-    f.close()
 print ("find combined run file at "+out_file);
