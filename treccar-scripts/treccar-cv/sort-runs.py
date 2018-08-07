@@ -1,12 +1,12 @@
 '''
-Created on Aug 6, 2018
+Created on Aug 7, 2018
 
 @author: sumanta
 '''
 import os
 import sys
 
-run_dir = sys.argv[1]
+run_file = sys.argv[1]
 out_file = sys.argv[2]
 num_ret = int(sys.argv[3])
 
@@ -33,18 +33,14 @@ def sortrun(run_file):
     f.close()
     return run_data
 
-run_names = sorted(os.listdir(run_dir))
-for fname in run_names:
-    run_data = sortrun(run_dir+"/"+fname)
-    with open(out_file,"a+") as outrun:
-        for q in run_data.keys():
-            run_tuples = run_data.get(q)
-            n = num_ret
-            if num_ret>len(run_tuples):
-                n = len(run_tuples)
-            for i in range(n):
-                para = run_tuples[i][0]
-                score = run_tuples[i][1]
-                outrun.write(q+" Q0 "+para+" 0 "+str(score)+" COMBRUN\n")
-    f.close()
-print ("find combined run file at "+out_file);
+run_data = sortrun(run_file)
+with open(out_file,"a+") as outrun:
+    for q in run_data.keys():
+        run_tuples = run_data.get(q)
+        n = num_ret
+        if num_ret>len(run_tuples):
+            n = len(run_tuples)
+        for i in range(n):
+            para = run_tuples[i][0]
+            score = run_tuples[i][1]
+            outrun.write(q+" Q0 "+para+" 0 "+str(score)+" SORTRUN\n")

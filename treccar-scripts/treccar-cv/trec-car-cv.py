@@ -22,6 +22,7 @@ test_fold = sys.argv[3]
 rlib_dir = sys.argv[4]
 qrels_suffix = sys.argv[5]
 qrels = trec_dir+"/"+qrels_suffix
+test_runs_dir = ""
 
 createFolder("fet-files")
 createFolder("models")
@@ -42,6 +43,7 @@ elif test_fold == "test":
     out_fet_file = "fet-files/all-train-fet"
     model_file = "models/all-train-model"
     out_test_run_file = "out-runs/comb-test-run"
+    test_runs_dir = sys.argv[6]
 else:
     print ("not a valid fold!")
     sys.exit()
@@ -144,4 +146,5 @@ if test_fold.startswith("fold"):
             for fet_count in range(len(scores)):
                 ret_score = ret_score+float(scores[fet_count])*float(opt_weights[fet_count])
             outrun.write(query+" Q0 "+para+" 0 "+str(ret_score)+" COMB"+test_fold+"\n")
+    
             
