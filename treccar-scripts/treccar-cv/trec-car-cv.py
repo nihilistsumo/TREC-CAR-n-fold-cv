@@ -110,7 +110,7 @@ for qp in fetq:
     fet_scores = []
     for fet in features:
         score = 0
-        if para in runfiles.get(fet).get(query).keys():
+        if query in runfiles.get(fet).keys() and para in runfiles.get(fet).get(query).keys():
             score = runfiles.get(fet).get(query).get(para)
         fet_scores.append(score)
     fet_file_dict[qp] = fet_scores
