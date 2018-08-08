@@ -16,17 +16,19 @@ def createFolder(directory):
     except OSError:
         print ("Error: Creating directory: " + directory)
         
-trec_dir = sys.argv[1]
+qrels_dir = sys.argv[1]
 run_dir = sys.argv[2]
 test_fold = sys.argv[3]
 rlib_dir = sys.argv[4]
 qrels_suffix = sys.argv[5]
-qrels = trec_dir+"/"+qrels_suffix
+out_dir = sys.argv[6]
+qrels = qrels_dir+"/"+qrels_suffix
 test_runs_dir = ""
 
-createFolder("fet-files")
-createFolder("models")
-createFolder("out-runs")
+createFolder(out_dir)
+createFolder(out_dir+"/fet-files")
+createFolder(out_dir+"/models")
+createFolder(out_dir+"/out-runs")
 
 out_fet_file = ""
 model_file = ""
@@ -43,14 +45,14 @@ elif test_fold == "test":
     out_fet_file = "fet-files/all-train-fet"
     model_file = "models/all-train-model"
     out_test_run_file = "out-runs/comb-test-run"
-    test_runs_dir = sys.argv[6]
+    test_runs_dir = sys.argv[7]
 else:
     print ("not a valid fold!")
     sys.exit()
 
 for fold in range(5):
     if str(fold) != test_fold_no:
-        qrels_file = open(trec_dir+"/fold-"+str(fold)+"-"+qrels_suffix, 'r')
+        qrels_file = open(qrels_dir+"/fold-"+str(fold)+"-"+qrels_suffix, 'r')
         for line in qrels_file:
             q = line.split()[0]
             p = line.split()[2]
