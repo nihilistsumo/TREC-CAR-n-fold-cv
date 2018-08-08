@@ -16,6 +16,7 @@ def createFolder(directory):
     except OSError:
         print ("Error: Creating directory: " + directory)
         
+        
 qrels_dir = sys.argv[1]
 run_dir = sys.argv[2]
 test_fold = sys.argv[3]
@@ -37,14 +38,14 @@ qrels_dict = {}
 
 if test_fold.startswith("fold"):
     test_fold_no = test_fold[4:5]
-    out_fet_file = "fet-files/"+test_fold+"-train-fet"
-    model_file = "models/"+test_fold+"-train-model"
-    out_test_run_file = "out-runs/comb-train-"+test_fold+"-run"
+    out_fet_file = out_dir+"/fet-files/"+test_fold+"-train-fet"
+    model_file = out_dir+"/models/"+test_fold+"-train-model"
+    out_test_run_file = out_dir+"/out-runs/comb-train-"+test_fold+"-run"
 elif test_fold == "test":
     test_fold_no = "-1"
-    out_fet_file = "fet-files/all-train-fet"
-    model_file = "models/all-train-model"
-    out_test_run_file = "out-runs/comb-test-run"
+    out_fet_file = out_dir+"/fet-files/all-train-fet"
+    model_file = out_dir+"/models/all-train-model"
+    out_test_run_file = out_dir+"/out-runs/comb-test-run"
     test_runs_dir = sys.argv[7]
 else:
     print ("not a valid fold!")
@@ -66,36 +67,51 @@ for fold in range(5):
 
 print ("qrels file is read")
 
-fetq = set()
-
 runfiles = {}
 features = sorted(os.listdir(run_dir))
 for fname in features:
-    scores = {}
+    rankings = {}
     f = open(run_dir+"/"+fname)
     line = f.readline()
     while line:
         line_elems = line.split()
-        runq = line_elems[0]+"_"+line_elems[2]
-        runscore = line_elems[4]
-        scores[runq] = runscore
+        query = line_elems[0]
+        para = line_elems[2]
+        runscore = float(line_elems[4])
+        if query in rankings.keys():
+            rankings[query][para] = runscore
+        else:
+            para_score_dict = {para:runscore}
+            rankings[query] = para_score_dict
         line = f.readline()
-    runfiles[fname] = scores
+    for q in rankings.keys():
+        q_dict = rankings.get(q)
+        max_score = 0.0
+        for p in q_dict.keys():
+            if max_score<q_dict.get(p):
+                max_score = q_dict.get(p)
+        for p in q_dict.keys():
+            rankings.get(q)[p] = rankings.get(q)[p]/max_score
+    runfiles[fname] = rankings
     f.close()
 print ("runfiles are read");
 
-fet_file_dict = {}
+fetq = set()
 for rf in runfiles.keys():
     rfdata = runfiles.get(rf)
-    for rfkey in rfdata.keys():
-        fetq.add(rfkey)
+    for rfq in rfdata.keys():
+        for rfq_para in rfdata.get(rfq).keys():
+            fetq.add(rfq+"_"+rfq_para)
 
+fet_file_dict = {}
 for qp in fetq:
+    query = qp.split('_')[0]
+    para = qp.split('_')[1]
     fet_scores = []
     for fet in features:
         score = 0
-        if qp in runfiles.get(fet).keys():
-            score = runfiles.get(fet).get(qp)
+        if para in runfiles.get(fet).get(query).keys():
+            score = runfiles.get(fet).get(query).get(para)
         fet_scores.append(score)
     fet_file_dict[qp] = fet_scores
 print ("fet file scores are read")
@@ -118,8 +134,8 @@ for fet_query in fet_file_dict.keys():
         fetline = fetline+" "+str(fet_count+1)+":"+str(scores[fet_count])
     
     #for debug mode
-    #fetline = fetline+" #"+fet_query
-    fetline = fetline+" #"+para
+    fetline = fetline+" #"+fet_query
+    #fetline = fetline+" #"+para
     
     with open(out_fet_file, "a") as fetf:
         fetf.write(fetline+"\n")
