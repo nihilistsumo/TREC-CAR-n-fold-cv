@@ -13,7 +13,38 @@ test_runs_dir = sys.argv[2]
 model_file = out_dir+"/models/all-train-model"
 test_run_name = test_runs_dir.split("/")[len(test_runs_dir.split("/"))-1]
 out_test_run_file = out_dir+"/out-runs/comb-train-"+test_run_name+"-run"
-    
+
+def read_runs(run_dir):
+    runfiles = {}
+    list_of_runfiles = sorted(os.listdir(run_dir))
+    for fname in list_of_runfiles:
+        rankings = {}
+        f = open(run_dir+"/"+fname)
+        line = f.readline()
+        while line:
+            line_elems = line.split()
+            query = line_elems[0]
+            para = line_elems[2]
+            runscore = float(line_elems[4])
+            if query in rankings.keys():
+                rankings[query][para] = runscore
+            else:
+                para_score_dict = {para:runscore}
+                rankings[query] = para_score_dict
+            line = f.readline()
+        for q in rankings.keys():
+            q_dict = rankings.get(q)
+            max_score = 0.0
+            for p in q_dict.keys():
+                if max_score<q_dict.get(p):
+                    max_score = q_dict.get(p)
+            for p in q_dict.keys():
+                rankings.get(q)[p] = rankings.get(q)[p]/max_score
+        runfiles[fname] = rankings
+        f.close()
+    print ("runfiles are read")
+    return runfiles
+
 opt_weights = []
 model = open(model_file,'r')
 for line in model:
