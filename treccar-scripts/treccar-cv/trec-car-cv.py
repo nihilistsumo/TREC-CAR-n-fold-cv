@@ -144,107 +144,15 @@ else:
     sys.exit()
 
 qrels_dict = read_qrels(qrels_dir, qrels_suffix, test_fold_no)
-'''
-for fold in range(5):
-    if str(fold) != test_fold_no:
-        qrels_file = open(qrels_dir+"/fold-"+str(fold)+"-"+qrels_suffix, 'r')
-        for line in qrels_file:
-            q = line.split()[0]
-            p = line.split()[2]
-            if q in qrels_dict.keys():
-                qrels_dict.get(q).add(p)
-            else:
-                new_paralist = set()
-                new_paralist.add(p)
-                qrels_dict[q] = new_paralist
-        qrels_file.close()
-
-print ("qrels file is read")
-'''
-
 
 runfiles = read_runs(run_dir)
-'''
-for fname in features:
-    rankings = {}
-    f = open(run_dir+"/"+fname)
-    line = f.readline()
-    while line:
-        line_elems = line.split()
-        query = line_elems[0]
-        para = line_elems[2]
-        runscore = float(line_elems[4])
-        if query in rankings.keys():
-            rankings[query][para] = runscore
-        else:
-            para_score_dict = {para:runscore}
-            rankings[query] = para_score_dict
-        line = f.readline()
-    for q in rankings.keys():
-        q_dict = rankings.get(q)
-        max_score = 0.0
-        for p in q_dict.keys():
-            if max_score<q_dict.get(p):
-                max_score = q_dict.get(p)
-        for p in q_dict.keys():
-            rankings.get(q)[p] = rankings.get(q)[p]/max_score
-    runfiles[fname] = rankings
-    f.close()
-print ("runfiles are read");
-'''
 
 features = sorted(os.listdir(run_dir))
 fet_file_dict = calculate_fet_scores(runfiles, features)
 
-'''
-fetq = set()
-for rf in runfiles.keys():
-    rfdata = runfiles.get(rf)
-    for rfq in rfdata.keys():
-        for rfq_para in rfdata.get(rfq).keys():
-            fetq.add(rfq+"_"+rfq_para)
-
-
-for qp in fetq:
-    query = qp.split('_')[0]
-    para = qp.split('_')[1]
-    fet_scores = []
-    for fet in features:
-        score = 0
-        if query in runfiles.get(fet).keys() and para in runfiles.get(fet).get(query).keys():
-            score = runfiles.get(fet).get(query).get(para)
-        fet_scores.append(score)
-    fet_file_dict[qp] = fet_scores
-print ("fet file scores are read")
-'''
-
 print ("writing feature file");
 
 test_fold_fet_query = write_fet_file(fet_file_dict, qrels_dict, out_fet_file)
-
-'''
-for fet_query in fet_file_dict.keys():
-    scores = fet_file_dict.get(fet_query)
-    query = fet_query.split('_')[0]
-    para = fet_query.split('_')[1]
-    qrelsq = fet_query.replace("_"," 0 ")
-    if not query in qrels_dict.keys():
-        test_fold_fet_query.add(fet_query)
-        continue
-    if para in qrels_dict.get(query):
-        fetline = "1"
-    else:
-        fetline = "0"
-    for fet_count in range(len(scores)):
-        fetline = fetline+" "+str(fet_count+1)+":"+str(scores[fet_count])
-    
-    #for debug mode
-    fetline = fetline+" #"+fet_query
-    #fetline = fetline+" #"+para
-    
-    with open(out_fet_file, "a") as fetf:
-        fetf.write(fetline+"\n")
-'''
 
 print ("handing over to Ranklib")
 
