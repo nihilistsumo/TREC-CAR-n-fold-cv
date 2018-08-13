@@ -12,7 +12,7 @@ test_runs_dir = sys.argv[2]
 
 model_file = out_dir+"/models/all-train-model"
 test_run_name = test_runs_dir.split("/")[len(test_runs_dir.split("/"))-1]
-out_test_run_file = out_dir+"/out-runs/comb-train-"+test_run_name+"-run"
+out_test_run_file = out_dir+"/out-runs/comb-"+test_run_name+"-run"
 
 def read_runs(run_dir):
     runfiles = {}
