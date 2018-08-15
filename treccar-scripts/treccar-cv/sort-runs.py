@@ -43,4 +43,4 @@ with open(out_file,"a+") as outrun:
         for i in range(n):
             para = run_tuples[i][0]
             score = run_tuples[i][1]
-            outrun.write(q+" Q0 "+para+" 0 "+str(score)+" SORTRUN\n")
+            outrun.write(q+" Q0 "+para+" "+str(i+1)+" "+str(score)+" SORTRUN\n")
