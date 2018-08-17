@@ -163,7 +163,7 @@ subprocess.call(['java','-Xmx100g','-jar',rlib,'-train',out_fet_file,'-ranker','
 opt_weights = []
 model = open(model_file,'r')
 for line in model:
-    if not line.startswith("#"):
+    if not line.startswith("#"): 
         weights = line.split()
         for i in range(len(weights)):
             opt_weights.append(weights[i].split(':')[1])
