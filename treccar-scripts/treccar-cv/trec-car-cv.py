@@ -58,8 +58,9 @@ def read_runs(run_dir):
             for p in q_dict.keys():
                 if max_score<q_dict.get(p):
                     max_score = q_dict.get(p)
-            for p in q_dict.keys():
-                rankings.get(q)[p] = rankings.get(q)[p]/max_score
+            if max_score>0.0:
+                for p in q_dict.keys():
+                    rankings.get(q)[p] = rankings.get(q)[p]/max_score
         runfiles[fname] = rankings
         f.close()
     print ("runfiles are read")
