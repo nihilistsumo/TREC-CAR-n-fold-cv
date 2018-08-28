@@ -60,7 +60,11 @@ def read_runs(run_dir):
                     max_score = q_dict.get(p)
             if max_score>0.0:
                 for p in q_dict.keys():
-                    rankings.get(q)[p] = rankings.get(q)[p]/max_score
+                    curr_score = rankings.get(q)[p]
+                    rankings.get(q)[p] = curr_score/max_score
+            else:
+                for p in q_dict.keys():
+                    rankings.get(q)[p] = 0.0
         runfiles[fname] = rankings
         f.close()
     print ("runfiles are read")
@@ -75,11 +79,16 @@ def calculate_fet_scores(runfiles, features):
             for rfq_para in rfdata.get(rfq).keys():
                 fetq.add(rfq+"_"+rfq_para)
     for qp in fetq:
+        '''
+        if qp == "enwiki:Ion:1f2a8ec61d05addf1d33b89555db46f6c78926fc_09a0215d88f8525232ec8e5480f5f77095ced7f4":
+            print("this is it")
+        '''
+        
         query = qp.split('_')[0]
         para = qp.split('_')[1]
         fet_scores = []
         for fet in features:
-            score = 0
+            score = 0.0
             if query in runfiles.get(fet).keys() and para in runfiles.get(fet).get(query).keys():
                 score = runfiles.get(fet).get(query).get(para)
             fet_scores.append(score)
@@ -106,7 +115,7 @@ def write_fet_file(fet_file_dict, qrels_dict, out_fet_file):
         #for debug mode
         fetline = fetline+" #"+fet_query
         #fetline = fetline+" #"+para
-        with open(out_fet_file, "a") as fetf:
+        with open(out_fet_file, "a+") as fetf:
             fetf.write(fetline+"\n")
     print ("fet file is written")
     return test_fold_fet_query
@@ -117,6 +126,7 @@ test_fold = sys.argv[3]
 rlib_dir = sys.argv[4]
 qrels_suffix = sys.argv[5]
 out_dir = sys.argv[6]
+#mode = sys.argv[7]
 qrels = qrels_dir+"/"+qrels_suffix
 test_runs_dir = ""
 
