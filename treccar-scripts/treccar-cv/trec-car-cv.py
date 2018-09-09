@@ -34,6 +34,21 @@ def read_qrels(qrels_dir, qrels_suffix, test_fold_no):
     print ("qrels file is read") 
     return qrels_dict
 
+def read_qrels_full(qrels_dir, qrels_suffix):
+    qrels_dict = {}
+    qrels_file = open(qrels_dir+"/"+qrels_suffix, 'r')
+    for line in qrels_file:
+        q = line.split()[0]
+        p = line.split()[2]
+        if q in qrels_dict.keys():
+            qrels_dict.get(q).add(p)
+        else:
+            new_paralist = set()
+            new_paralist.add(p)
+            qrels_dict[q] = new_paralist
+    qrels_file.close()
+    return qrels_dict
+
 def read_runs(run_dir):
     runfiles = {}
     list_of_runfiles = sorted(os.listdir(run_dir))
@@ -96,7 +111,7 @@ def calculate_fet_scores(runfiles, features):
     print ("fet file scores are read")
     return fet_file_dict
 
-def write_fet_file(fet_file_dict, qrels_dict, out_fet_file):
+def write_fet_file(fet_file_dict, qrels_dict, full_qrels_dict, out_fet_file):
     test_fold_fet_query = set()
     for fet_query in fet_file_dict.keys():
         scores = fet_file_dict.get(fet_query)
@@ -104,7 +119,8 @@ def write_fet_file(fet_file_dict, qrels_dict, out_fet_file):
         para = fet_query.split('_')[1]
         qrelsq = fet_query.replace("_"," 0 ")
         if not query in qrels_dict.keys():
-            test_fold_fet_query.add(fet_query)
+            if query in full_qrels_dict.keys():
+                test_fold_fet_query.add(fet_query)
             continue
         if para in qrels_dict.get(query):
             fetline = "1"
@@ -155,6 +171,7 @@ else:
     sys.exit()
 
 qrels_dict = read_qrels(qrels_dir, qrels_suffix, test_fold_no)
+full_qrels_dict = read_qrels_full(qrels_dir, qrels_suffix)
 
 runfiles = read_runs(run_dir)
 
@@ -163,7 +180,7 @@ fet_file_dict = calculate_fet_scores(runfiles, features)
 
 print ("writing feature file");
 
-test_fold_fet_query = write_fet_file(fet_file_dict, qrels_dict, out_fet_file)
+test_fold_fet_query = write_fet_file(fet_file_dict, qrels_dict, full_qrels_dict, out_fet_file)
 
 print ("handing over to Ranklib")
 
